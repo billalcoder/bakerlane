@@ -12,7 +12,7 @@ import ProductDetails from './pages/ProductDetails.jsx';
 import { Order } from './pages/Order.jsx';
 import SearchResults from './pages/SearchResults.jsx';
 import Settings from './pages/setting.jsx';
-import Profile from './pages/profile.jsx';
+import Profile from './pages/Profile.jsx';
 
 const router = createBrowserRouter([
   {
