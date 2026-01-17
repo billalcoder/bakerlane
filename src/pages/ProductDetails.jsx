@@ -68,7 +68,7 @@ const ProductDetails = () => {
 
             const data = await res.json()
             if (!data.success) {
-                return alert(data.message)
+                return alert(data.message || data.error)
             }
             alert("Your order will be send to the baker you will be notify ones accepted and you can view your orders in order tab avalable in header and the profile option")
         }

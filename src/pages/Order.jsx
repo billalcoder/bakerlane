@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Loader2, ShoppingBag, ArrowLeft } from 'lucide-react';
-import OrderCard from '../components/OrderCard';
-// Make sure path to OrderCard is correct based on your folder structure
 import { useNavigate } from 'react-router-dom';
-export const Order = () => {
+import OrderCard from '../components/OrderCard';
+
+// 1. Removed "export" from here
+const Order = () => {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const navigate = useNavigate()
+    const navigate = useNavigate();
+    console.log(orders);
     useEffect(() => {
         const fetchOrders = async () => {
             try {
-                // Fetching from your backend
                 const res = await fetch(`${import.meta.env.VITE_BASEURL}/order/me`, {
                     credentials: "include"
                 });
@@ -21,9 +22,9 @@ export const Order = () => {
                 }
 
                 const data = await res.json();
-
-                // Handle response structure { success: true, data: [...] }
-                const orderList = data.data || data.orders || (Array.isArray(data) ? data : []);
+                console.log(data);
+                // robust check for data structure
+                const orderList = data?.data || (Array.isArray(data.data) ? data : []);
                 setOrders(orderList);
 
             } catch (err) {
@@ -54,11 +55,13 @@ export const Order = () => {
         <div className="max-w-2xl mx-auto px-4 py-8 pb-24 animate-fade-in">
             <button
                 onClick={() => navigate(-1)}
-                className="flex items-center gap-2 text-gray-700 hover:text-black"
+                className="flex items-center gap-2 text-gray-700 hover:text-black mb-4"
             >
                 <ArrowLeft size={20} />
                 Back
-            </button>        {/* Header */}
+            </button>
+
+            {/* Header */}
             <div className="flex items-center gap-3 mb-8">
                 <div className="p-3 bg-amber-100 rounded-full text-amber-600">
                     <ShoppingBag size={24} />
@@ -86,3 +89,6 @@ export const Order = () => {
         </div>
     );
 };
+
+// 2. Added default export here
+export default Order;

@@ -22,27 +22,27 @@ const Header = () => {
 
 
   useEffect(() => {
-  const checkSession = async () => {
-    try {
-      const res = await fetch(
-        `${import.meta.env.VITE_BASEURL}/order/me`,
-        {
-          credentials: "include", // 🔴 REQUIRED for session cookies
+    const checkSession = async () => {
+      try {
+        const res = await fetch(
+          `${import.meta.env.VITE_BASEURL}/order/me`,
+          {
+            credentials: "include", // 🔴 REQUIRED for session cookies
+          }
+        );
+
+        if (res.ok) {
+          setIsLoggedIn(true);   // session exists
+        } else {
+          setIsLoggedIn(false);  // no session
         }
-      );
-
-      if (res.ok) {
-        setIsLoggedIn(true);   // session exists
-      } else {
-        setIsLoggedIn(false);  // no session
+      } catch (err) {
+        setIsLoggedIn(false);
       }
-    } catch (err) {
-      setIsLoggedIn(false);
-    }
-  };
+    };
 
-  checkSession();
-}, []);
+    checkSession();
+  }, []);
 
 
   return (
@@ -96,66 +96,66 @@ const Header = () => {
               <User size={20} />
             </button>
 
-           {open && (
-  <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-stone-100 overflow-hidden">
+            {open && (
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-stone-100 overflow-hidden">
 
-    {!isLoggedIn ? (
-      /* -------- BEFORE LOGIN -------- */
-      <Link
-        to="/login"
-        onClick={() => setOpen(false)}
-        className="flex items-center gap-3 px-4 py-3 text-sm text-stone-700 hover:bg-stone-50"
-      >
-        <User size={16} /> Login
-      </Link>
-    ) : (
-      /* -------- AFTER LOGIN -------- */
-      <>
-        <Link
-          to="/home/profile"
-          onClick={() => setOpen(false)}
-          className="flex items-center gap-3 px-4 py-3 text-sm text-stone-700 hover:bg-stone-50"
-        >
-          <User size={16} /> My Profile
-        </Link>
+                {!isLoggedIn ? (
+                  /* -------- BEFORE LOGIN -------- */
+                  <Link
+                    to="/login"
+                    onClick={() => setOpen(false)}
+                    className="flex items-center gap-3 px-4 py-3 text-sm text-stone-700 hover:bg-stone-50"
+                  >
+                    <User size={16} /> Login
+                  </Link>
+                ) : (
+                  /* -------- AFTER LOGIN -------- */
+                  <>
+                    <Link
+                      to="/home/profile"
+                      onClick={() => setOpen(false)}
+                      className="flex items-center gap-3 px-4 py-3 text-sm text-stone-700 hover:bg-stone-50"
+                    >
+                      <User size={16} /> My Profile
+                    </Link>
 
-        <Link
-          to="/home/order"
-          onClick={() => setOpen(false)}
-          className="flex items-center gap-3 px-4 py-3 text-sm text-stone-700 hover:bg-stone-50"
-        >
-          <ListOrdered size={16} /> My Orders
-        </Link>
+                    <Link
+                      to="/home/order"
+                      onClick={() => setOpen(false)}
+                      className="flex items-center gap-3 px-4 py-3 text-sm text-stone-700 hover:bg-stone-50"
+                    >
+                      <ListOrdered size={16} /> My Orders
+                    </Link>
 
-        <Link
-          to="/home/settings"
-          onClick={() => setOpen(false)}
-          className="flex items-center gap-3 px-4 py-3 text-sm text-stone-700 hover:bg-stone-50"
-        >
-          <Settings size={16} /> Settings
-        </Link>
+                    <Link
+                      to="/home/settings"
+                      onClick={() => setOpen(false)}
+                      className="flex items-center gap-3 px-4 py-3 text-sm text-stone-700 hover:bg-stone-50"
+                    >
+                      <Settings size={16} /> Settings
+                    </Link>
 
-        <div className="h-px bg-stone-100"></div>
+                    <div className="h-px bg-stone-100"></div>
 
-        <button
-          onClick={async () => {
-            await fetch(`${import.meta.env.VITE_BASEURL}/auth/logout`, {
-              method: "POST",
-              credentials: "include",
-            });
-            setIsLoggedIn(false);
-            setOpen(false);
-            navigate("/login");
-          }}
-          className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50"
-        >
-          <LogOut size={16} /> Logout
-        </button>
-      </>
-    )}
+                    <button
+                      onClick={async () => {
+                        await fetch(`${import.meta.env.VITE_BASEURL}/auth/logout`, {
+                          method: "POST",
+                          credentials: "include",
+                        });
+                        setIsLoggedIn(false);
+                        setOpen(false);
+                        navigate("/login");
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50"
+                    >
+                      <LogOut size={16} /> Logout
+                    </button>
+                  </>
+                )}
 
-  </div>
-)}
+              </div>
+            )}
 
           </div>
 
