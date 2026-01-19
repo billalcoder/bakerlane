@@ -10,7 +10,7 @@ const SearchResults = () => {
 
   const [location, setLocation] = useState(null);
   const [locationDenied, setLocationDenied] = useState(false);
-
+  console.log(results);
   // 📍 Try to get location
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(

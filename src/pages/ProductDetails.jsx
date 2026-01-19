@@ -188,26 +188,6 @@ const ProductDetails = () => {
                         </div>
                     </div>
 
-                    {/* Shop / Seller Info Card */}
-                    {shop && (
-                        <Link to={`/shop/${shopId}`} className="mt-6 flex items-center gap-4 p-4 rounded-xl bg-stone-100 hover:bg-amber-50 transition-colors group cursor-pointer border border-transparent hover:border-amber-200">
-                            <div className="h-12 w-12 rounded-full bg-white overflow-hidden border border-stone-200">
-                                {/* Use shop profile image if available */}
-                                <img src="https://placehold.co/100" alt="Shop" className="w-full h-full object-cover" />
-                            </div>
-                            <div className="flex-grow">
-                                <p className="text-xs text-stone-500 font-bold uppercase mb-0.5">Sold By</p>
-                                <h4 className="font-bold text-stone-800 group-hover:text-amber-700 transition-colors flex items-center gap-2">
-                                    {shop.shopName || "Bakery Name"}
-                                    <Store size={14} className="text-stone-400" />
-                                </h4>
-                            </div>
-                            <div className="bg-white p-2 rounded-full text-stone-400 group-hover:text-amber-600 transition-colors">
-                                <ArrowLeft size={20} className="rotate-180" />
-                            </div>
-                        </Link>
-                    )}
-
                 </div>
             </div>
             {/* Reviews Section */}

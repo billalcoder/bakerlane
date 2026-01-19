@@ -16,7 +16,7 @@ export const ShopProvider = ({ children }) => {
 
             const res = await fetch(url);
             const data = await res.json();
-            
+
             if (data.success) {
                 setShops(data.shops);
             }
@@ -50,6 +50,7 @@ export const ShopProvider = ({ children }) => {
             }
         );
     };
+
 
     useEffect(() => {
         initializeShops();

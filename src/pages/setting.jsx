@@ -67,7 +67,7 @@ const Settings = () => {
     }
 
     async function getUserProfile() {
-        const res = await fetch(`${import.meta.env.VITE_BASEURL}/auth/getClient`, {
+        const res = await fetch(`${import.meta.env.VITE_BASEURL}/auth/profile`, {
             credentials: "include"
         });
 
