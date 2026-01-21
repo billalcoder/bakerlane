@@ -1,0 +1,7 @@
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.jsdelivr.net 'sha256-Z2/iFzh9VMlVkEOar1f/oSHWwQk3ve1qk/C2WdsC4Xk='; style-src 'self' ; img-src 'self' https://api.dicebear.com http://localhost:5174 https://bakerlane.shop https://dy4nbj6hy5kkk.cloudfront.net data: blob:; connect-src 'self' http://localhost:4000 https://api.bakerlane.shop; worker-src 'self' https://bakerlane.shop blob:; script-src-elem 'self' https://cdn.jsdelivr.net 'sha256-Z2/iFzh9VMlVkEOar1f/oSHWwQk3ve1qk/C2WdsC4Xk=';
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(self), microphone=(), geolocation=(self), payment=()
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
