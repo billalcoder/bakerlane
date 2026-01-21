@@ -252,6 +252,7 @@ const ShopDetails = () => {
                                     <Cake className="text-amber-500" /> Custom Order
                                 </h3>
                                 <p className="text-xs text-stone-500">Tell us how you want your cake!</p>
+                                <p className="text-xs text-stone-500">Once the baker accepts your request, you will receive their contact number and can connect with them</p>
                             </div>
                             <button
                                 onClick={() => setIsCustomModalOpen(false)}

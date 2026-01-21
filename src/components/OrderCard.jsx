@@ -34,14 +34,14 @@ const OrderCard = ({ order }) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           orderId: order._id,
-          productId: product?._id, 
+          productId: product?._id,
           rating,
           comment
         })
       });
 
       const data = await res.json()
-      if(!data.success){
+      if (!data.success) {
         alert(data.message)
       }
       setReviewed(true);
@@ -70,7 +70,7 @@ const OrderCard = ({ order }) => {
             <h3 className="font-bold text-stone-800 text-base">
               {order.shopId?.shopName || 'Unknown Shop'}
             </h3>
-            
+
             {/* Main Item Display */}
             <div className="flex gap-4 mt-3">
               <div className="w-16 h-16 rounded-xl overflow-hidden border border-stone-200 bg-stone-50 flex items-center justify-center flex-shrink-0">
@@ -86,8 +86,8 @@ const OrderCard = ({ order }) => {
               </div>
               <div>
                 <p className="text-sm font-bold text-stone-700 line-clamp-1">
-                  {isCustom 
-                    ? `Custom: ${order.customization?.theme || 'Cake'}` 
+                  {isCustom
+                    ? `Custom: ${order.customization?.theme || 'Cake'}`
                     : product?.productName || 'Unknown Product'
                   }
                 </p>
@@ -107,26 +107,25 @@ const OrderCard = ({ order }) => {
       <div className="my-4 h-px bg-stone-100"></div>
 
       {/* --- CONTACT SECTION (Visible Only When Delivered) --- */}
-      {order.orderStatus === 'delivered' && (
-        <div className="mb-4 bg-green-50/50 rounded-xl p-3 border border-green-100 flex items-center justify-between">
-            <div>
-                <p className="text-[10px] uppercase text-green-600 font-bold tracking-wider mb-0.5">Baker Contact</p>
-                <p className="text-sm font-bold text-stone-800 flex items-center gap-1">
-                   <Store size={14} className="text-stone-400"/> {order.shopId?.shopName}
-                </p>
-            </div>
-            
-            {/* Phone Button */}
-            {/* Note: Ensure your backend populates shopId.ownerId or shopId.phoneNumber */}
-            <a 
-                href={`tel:${order.shopId?.clientId?.phone || order.shopId?.phoneNumber}`} 
-                className="flex items-center gap-2 bg-white text-green-700 px-3 py-2 rounded-lg text-xs font-bold border border-green-200 shadow-sm hover:bg-green-600 hover:text-white transition-colors"
-            >
-                <Phone size={14} />
-                {order.shopId?.clientId?.phone || "Call Baker"}
-            </a>
-        </div>
-      )}
+    {(order.orderStatus === 'preparing' || order.orderStatus === 'on-the-way') && (
+  <div className="mb-4 bg-green-50/50 rounded-xl p-3 border border-green-100 flex items-center justify-between">
+    <div>
+      <p className="text-[10px] uppercase text-green-600 font-bold tracking-wider mb-0.5">Baker Contact</p>
+      <p className="text-sm font-bold text-stone-800 flex items-center gap-1">
+        <Store size={14} className="text-stone-400" /> {order.shopId?.shopName}
+      </p>
+    </div>
+
+    <a
+      href={`tel:${order.shopId?.clientId?.phone || order.shopId?.phoneNumber}`}
+      className="flex items-center gap-2 bg-white text-green-700 px-3 py-2 rounded-lg text-xs font-bold border border-green-200 shadow-sm hover:bg-green-600 hover:text-white transition-colors"
+    >
+      <Phone size={14} />
+      {order.shopId?.clientId?.phone || "Call Baker"}
+    </a>
+  </div>
+)}
+
 
       {/* --- PRICE & DETAILS --- */}
       <div className="flex justify-between items-end">
@@ -149,10 +148,10 @@ const OrderCard = ({ order }) => {
         </div>
 
         <div className="text-right">
-            <p className="text-xs uppercase text-stone-400 font-semibold">Total</p>
-            <div className="text-xl font-extrabold text-amber-600">
-                {order.totalAmount ? `₹${order.totalAmount}` : 'Quote Pending'}
-            </div>
+          <p className="text-xs uppercase text-stone-400 font-semibold">Total</p>
+          <div className="text-xl font-extrabold text-amber-600">
+            {order.totalAmount ? `₹${order.totalAmount}` : 'Quote Pending'}
+          </div>
         </div>
       </div>
 

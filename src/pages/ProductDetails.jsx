@@ -64,7 +64,7 @@ const ProductDetails = () => {
                 },
                 credentials: "include",
                 body: JSON.stringify({ productId: id }),
-            })
+            }) 
 
             const data = await res.json()
             if (!data.success) {
