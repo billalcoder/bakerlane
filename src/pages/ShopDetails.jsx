@@ -113,7 +113,7 @@ const ShopDetails = () => {
                 setIsCustomModalOpen(false);
                 setCustomForm({ weight: "", flavor: "", theme: "", notes: "" });
             } else {
-                alert("Failed to send request: " + result.message);
+              alert(result.error)
             }
         } catch (error) {
             console.error(error);
