@@ -54,6 +54,47 @@ const OrderCard = ({ order }) => {
     }
   };
 
+  const canCancelOrder = () => {
+    if (order.orderStatus !== "preparing") return false;
+
+    const ONE_HOUR = 60 * 60 * 1000;
+    const orderTime = new Date(order.createdAt).getTime();
+    const now = Date.now();
+
+    return now - orderTime <= ONE_HOUR;
+  };
+
+  const cancelOrder = async () => {
+    if (!confirm("Are you sure you want to cancel this order?")) return;
+
+    try {
+      setLoading(true);
+
+      const res = await fetch(
+        `${import.meta.env.VITE_BASEURL}/order/cancel/${order._id}`,
+        {
+          method: "PUT",
+          credentials: "include"
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Could not cancel order");
+      }
+
+      alert("Order cancelled successfully");
+      window.location.reload(); // or refetch orders
+
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
   // Date Formatting
   const orderDate = new Date(order.createdAt).toLocaleDateString();
 
@@ -61,6 +102,36 @@ const OrderCard = ({ order }) => {
     <div className="bg-white rounded-2xl border border-stone-100 p-6 mb-5 shadow-sm hover:shadow-lg transition-all">
 
       {/* --- HEADER --- */}
+      {canCancelOrder() && (
+        <div className="mt-3 flex justify-end">
+          <button
+            onClick={cancelOrder}
+            disabled={loading}
+            className="
+        flex items-center gap-2
+        px-4 py-1.5
+        text-xs font-bold
+        text-red-600
+        bg-red-50
+        border border-red-200
+        rounded-full
+        hover:bg-red-100 hover:text-red-700
+        active:scale-95
+        transition-all
+        disabled:opacity-50 disabled:cursor-not-allowed
+      "
+          >
+            {loading ? (
+              <>
+                <span className="animate-spin h-3 w-3 border-2 border-red-400 border-t-transparent rounded-full"></span>
+                Cancelling
+              </>
+            ) : (
+              "Cancel Order"
+            )}
+          </button>
+        </div>
+      )}
       <div className="flex justify-between items-start gap-4">
         <div className="flex gap-4">
           <div className="h-10 w-10 flex-shrink-0 flex items-center justify-center rounded-xl bg-amber-50 text-amber-600">
@@ -99,7 +170,7 @@ const OrderCard = ({ order }) => {
           </div>
         </div>
 
-        <span className={`px-3 py-1 text-xs font-semibold rounded-full ring-1 uppercase tracking-wide ${getStatusColor(order.orderStatus)}`}>
+        <span className={`px-3 py-1 my-3 text-xs font-semibold rounded-full ring-1 uppercase tracking-wide ${getStatusColor(order.orderStatus)}`}>
           {order.orderStatus}
         </span>
       </div>
@@ -107,24 +178,24 @@ const OrderCard = ({ order }) => {
       <div className="my-4 h-px bg-stone-100"></div>
 
       {/* --- CONTACT SECTION (Visible Only When Delivered) --- */}
-    {(order.orderStatus === 'preparing' || order.orderStatus === 'on-the-way') && (
-  <div className="mb-4 bg-green-50/50 rounded-xl p-3 border border-green-100 flex items-center justify-between">
-    <div>
-      <p className="text-[10px] uppercase text-green-600 font-bold tracking-wider mb-0.5">Baker Contact</p>
-      <p className="text-sm font-bold text-stone-800 flex items-center gap-1">
-        <Store size={14} className="text-stone-400" /> {order.shopId?.shopName}
-      </p>
-    </div>
+      {(order.orderStatus === 'preparing' || order.orderStatus === 'on-the-way') && (
+        <div className="mb-4 bg-green-50/50 rounded-xl p-3 border border-green-100 flex items-center justify-between">
+          <div>
+            <p className="text-[10px] uppercase text-green-600 font-bold tracking-wider mb-0.5">Baker Contact</p>
+            <p className="text-sm font-bold text-stone-800 flex items-center gap-1">
+              <Store size={14} className="text-stone-400" /> {order.shopId?.shopName}
+            </p>
+          </div>
 
-    <a
-      href={`tel:${order.shopId?.clientId?.phone || order.shopId?.phoneNumber}`}
-      className="flex items-center gap-2 bg-white text-green-700 px-3 py-2 rounded-lg text-xs font-bold border border-green-200 shadow-sm hover:bg-green-600 hover:text-white transition-colors"
-    >
-      <Phone size={14} />
-      {order.shopId?.clientId?.phone || "Call Baker"}
-    </a>
-  </div>
-)}
+          <a
+            href={`tel:${order.shopId?.clientId?.phone || order.shopId?.phoneNumber}`}
+            className="flex items-center gap-2 bg-white text-green-700 px-3 py-2 rounded-lg text-xs font-bold border border-green-200 shadow-sm hover:bg-green-600 hover:text-white transition-colors"
+          >
+            <Phone size={14} />
+            {order.shopId?.clientId?.phone || "Call Baker"}
+          </a>
+        </div>
+      )}
 
 
       {/* --- PRICE & DETAILS --- */}
