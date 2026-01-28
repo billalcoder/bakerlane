@@ -110,6 +110,14 @@ const ProductDetails = () => {
 
             </div>
 
+            <Link 
+            to={`/home/shop/${shopId}`} 
+            className="flex items-center gap-2 px-4 py-2 bg-stone-100 hover:bg-amber-50 text-stone-700 hover:text-amber-700 rounded-full transition-all text-sm font-semibold border border-stone-200"
+        >
+            <Store size={16} />
+            Visit Shop
+        </Link>
+
 
             <div className="max-w-7xl mx-auto px-4 md:px-6 grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-16">
 
