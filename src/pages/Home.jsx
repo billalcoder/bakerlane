@@ -1,76 +1,78 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import ShopCard from '../components/ShopCard';
 import { Loader2, ChevronDown } from 'lucide-react';
+// 1. Import the hook
+import { useInfiniteQuery } from '@tanstack/react-query';
 
 const Home = () => {
-  const [shops, setShops] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [locationDenied, setLocationDenied] = useState(false);
+  // We only need state for location now. Data state is handled by React Query.
   const [coords, setCoords] = useState({ lat: null, lng: null });
+  const [locationDenied, setLocationDenied] = useState(false);
 
-  // 1. Fetch Function - Simplified dependencies
-  const fetchShops = useCallback(async (lat, lng, targetPage) => {
-    try {
-      setLoading(true);
-      const baseUrl = `${import.meta.env.VITE_BASEURL}/shop/get`;
-      const params = new URLSearchParams({
-        page: targetPage.toString(),
-        limit: "10"
-      });
+  // 2. Define the Fetch Function
+  // React Query passes 'pageParam' automatically for pagination
+  const fetchShopsApi = async ({ pageParam = 1 }) => {
+    const baseUrl = `${import.meta.env.VITE_BASEURL}/shop/get`;
+    const params = new URLSearchParams({
+      page: pageParam.toString(),
+      limit: "10"
+    });
 
-      if (lat && lng) {
-        params.append("latitude", lat);
-        params.append("longitude", lng);
-      }
-
-      const res = await fetch(`${baseUrl}?${params.toString()}`);
-      const data = await res.json();
-
-      if (data.success) {
-        // If targetPage is 1, we reset the list. Otherwise, append.
-        setShops(prev => targetPage === 1 ? data.shops : [...prev, ...data.shops]);
-        
-        if (data.pagination) {
-          setTotalPages(data.pagination.totalPages);
-        }
-      }
-    } catch (err) {
-      console.error("Fetch error:", err);
-    } finally {
-      setLoading(false);
+    // Only append lat/lng if they exist
+    if (coords.lat && coords.lng) {
+      params.append("latitude", coords.lat);
+      params.append("longitude", coords.lng);
     }
-  }, []); // Empty dependencies because it uses internal logic and args
 
-  // 2. Initial Trigger
+    const res = await fetch(`${baseUrl}?${params.toString()}`);
+    if (!res.ok) throw new Error('Network response was not ok');
+    return res.json();
+  };
+
+  // 3. The Magic Hook
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    status,
+    refetch // Used to reload when location changes
+  } = useInfiniteQuery({
+    queryKey: ['shops', coords], // If coords change, the list clears and refetches automatically!
+    queryFn: fetchShopsApi,
+    getNextPageParam: (lastPage) => {
+      // Check your API response structure for totalPages/currentPage
+      // Assuming structure: { pagination: { currentPage: 1, totalPages: 5 } }
+      const { currentPage, totalPages } = lastPage.pagination || {};
+      return currentPage < totalPages ? currentPage + 1 : undefined;
+    },
+    initialPageParam: 1,
+  });
+
+  // 4. Handle Geolocation (Side Effect)
   useEffect(() => {
     if (!navigator.geolocation) {
       setLocationDenied(true);
-      fetchShops(null, null, 1);
-    } else {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const { latitude, longitude } = pos.coords;
-          setCoords({ lat: latitude, lng: longitude });
-          fetchShops(latitude, longitude, 1);
-        },
-        () => {
-          setLocationDenied(true);
-          fetchShops(null, null, 1);
-        }
-      );
+      return;
     }
-  }, [fetchShops]);
+    
+    // We don't block fetching here. The query runs immediately with null coords.
+    // When this callback runs later, it updates state, triggering a background refetch.
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+      },
+      (err) => {
+        console.warn("Location denied or error:", err);
+        setLocationDenied(true);
+      }
+    );
+  }, []);
 
-  // 3. Manual Pagination Handler
-  const handleLoadMore = () => {
-    if (page < totalPages && !loading) {
-      const nextPage = page + 1;
-      setPage(nextPage);
-      fetchShops(coords.lat, coords.lng, nextPage);
-    }
-  };
+  // Helper to flatten the data (React Query stores it in 'pages' array)
+  // Page 1 => data.pages[0].shops
+  // Page 2 => data.pages[1].shops
+  const allShops = data?.pages.flatMap(page => page.shops) || [];
 
   return (
     <div className="py-8 animate-fade-in">
@@ -87,31 +89,37 @@ const Home = () => {
 
       {/* Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 px-4 md:px-6">
-        {shops.map((shopData, index) => (
-          <ShopCard key={shopData.shop?._id || index} shop={shopData} />
-        ))}
+        {status === 'pending' ? (
+           // Initial Loading Skeleton could go here
+           <div className="col-span-full text-center text-stone-400">Loading delicious shops...</div>
+        ) : status === 'error' ? (
+           <div className="col-span-full text-center text-red-500">Error loading shops.</div>
+        ) : (
+          allShops.map((shopData, index) => (
+            <ShopCard key={shopData.shop?._id || index} shop={shopData} />
+          ))
+        )}
       </div>
 
       {/* Pagination Button Section */}
       <div className="mt-12 flex flex-col items-center justify-center pb-10">
-        {loading ? (
+        {isFetchingNextPage ? (
           <div className="flex items-center text-stone-500">
             <Loader2 className="animate-spin mr-2 text-amber-600" size={24} />
             Fetching more bakeries...
           </div>
-        ) : page < totalPages ? (
+        ) : hasNextPage ? (
           <button
-            onClick={handleLoadMore}
+            onClick={() => fetchNextPage()}
+            disabled={!hasNextPage || isFetchingNextPage}
             className="flex items-center gap-2 bg-white border-2 border-amber-600 text-amber-600 px-8 py-2.5 rounded-full font-bold hover:bg-amber-600 hover:text-white transition-all shadow-sm active:scale-95"
           >
             <ChevronDown size={20} />
             Load More Shops
           </button>
-        ) : shops.length > 0 ? (
+        ) : allShops.length > 0 ? (
           <p className="text-stone-400 text-sm italic">You've seen all the bakers in this area!</p>
-        ) : (
-          !loading && <p className="text-stone-500">loading.</p>
-        )}
+        ) : null}
       </div>
     </div>
   );

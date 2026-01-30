@@ -151,6 +151,7 @@ const OrderCard = ({ order }) => {
                   <img
                     src={product?.images?.[0] || "https://placehold.co/100"}
                     alt={product?.productName}
+                    loading="lazy"
                     className="w-full h-full object-cover"
                   />
                 )}

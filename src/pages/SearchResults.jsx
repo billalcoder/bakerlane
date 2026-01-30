@@ -78,6 +78,7 @@ const SearchResults = () => {
             >
               <img
                 src={product.images?.[0] || "https://placehold.co/300"}
+                loading="lazy"
                 className="h-40 w-full object-cover rounded-lg"
               />
 

@@ -127,6 +127,7 @@ const ProductDetails = () => {
                         <img
                             src={product.images?.[0] || product.imageUrl || "https://placehold.co/600"}
                             alt={product.productName}
+                            loading="lazy"
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                         />
                         {product.stock <= 0 && (

@@ -62,6 +62,7 @@ const Profile = () => {
                         <img 
                             src={`https://api.dicebear.com/7.x/initials/svg?seed=${user?.name || 'User'}`} 
                             alt="Avatar" 
+                            loading="lazy"
                             className="w-full h-full object-cover"
                         />
                      </div>

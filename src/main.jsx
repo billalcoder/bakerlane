@@ -2,7 +2,8 @@ import { StrictMode, lazy, Suspense } from 'react'
 import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
 import './index.css'
-import { ShopProvider } from '../context/ShopContext.jsx'
+// import { ShopProvider } from '../context/ShopContext.jsx'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 // 🔹 Lazy-loaded components
 const App = lazy(() => import('./App.jsx'))
@@ -16,6 +17,9 @@ const Order = lazy(() => import('./pages/Order.jsx'))
 const SearchResults = lazy(() => import('./pages/SearchResults.jsx'))
 const Settings = lazy(() => import('./pages/setting.jsx'))
 const Profile = lazy(() => import('./pages/Profile.jsx'))
+
+
+const queryClient = new QueryClient()
 
 // 🔹 Loader UI
 const Loader = () => (
@@ -125,8 +129,10 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <ShopProvider>
-      <RouterProvider router={router} />
-    </ShopProvider>
+    <QueryClientProvider client={queryClient}>
+      {/* <ShopProvider> */}
+        <RouterProvider router={router} />
+      {/* </ShopProvider> */}
+    </QueryClientProvider>
   </StrictMode>
 )

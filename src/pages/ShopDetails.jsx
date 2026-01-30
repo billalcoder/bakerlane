@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo, useContext } from "react";
 import { useParams, useLocation, Link } from "react-router-dom";
 import { Sparkles, ShoppingBag, ArrowLeft, Star, MapPin, Cake, X, CheckCircle } from "lucide-react";
 import ProductCard from "../components/ProductCart";
-import { useShop } from "../../context/ShopContext";
+// import { useShop } from "../../context/ShopContext";
 
 const ShopDetails = () => {
     const { id } = useParams();
@@ -30,14 +30,30 @@ const ShopDetails = () => {
     console.log(products);
     // --- FETCH SHOP DATA ---
     useEffect(() => {
-        if (!state) {
-            fetch(`${import.meta.env.VITE_BASEURL}/shop/${id}`)
-                .then(res => res.json())
-                .then(data => {
+        // Helper to fetch Shop
+        const fetchShopDetails = async () => {
+            if (!state) { // Only fetch if we didn't pass data via router state
+                try {
+                    const res = await fetch(`${import.meta.env.VITE_BASEURL}/shop/${id}`);
+                    const data = await res.json();
                     if (data.success) setShop(data.shop || data.data);
-                })
-                .catch(err => console.error(err));
-        }
+                } catch (err) { console.error(err); }
+            }
+        };
+
+        // Helper to fetch Products (Uses 'id' directly from params, not 'shop' state)
+        const fetchProducts = async () => {
+            try {
+                // NOTE: Ensure your backend accepts the shop ID from the URL param here
+                const res = await fetch(`${import.meta.env.VITE_BASEURL}/shop/product/get/${id}`);
+                const data = await res.json();
+                setProducts(data.products || data.data || []);
+            } catch (err) { console.error("Error fetching products:", err); }
+        };
+
+        // Execute BOTH in parallel
+        Promise.all([fetchShopDetails(), fetchProducts()]);
+
     }, [id, state]);
 
     useEffect(() => {
@@ -113,7 +129,7 @@ const ShopDetails = () => {
                 setIsCustomModalOpen(false);
                 setCustomForm({ weight: "", flavor: "", theme: "", notes: "" });
             } else {
-              alert(result.error)
+                alert(result.error)
             }
         } catch (error) {
             console.error(error);
@@ -136,6 +152,7 @@ const ShopDetails = () => {
                     <img
                         src={shop?.shop?.coverImage || shop.coverImage || "https://placehold.co/1200x400?text=Bakery"}
                         className="w-full h-full object-cover"
+                        loading="lazy"
                         alt="Cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-end p-6 md:p-10 text-white">
