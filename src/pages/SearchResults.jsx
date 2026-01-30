@@ -7,18 +7,28 @@ const SearchResults = () => {
   const [params] = useSearchParams();
   const query = params.get("q");
 
-  // 1. Location State (Start as null)
-  const [coords, setCoords] = useState({ lat: null, lng: null });
+  // 1. INITIALIZE STATE FROM STORAGE (Shared with Home Page!)
+  // If Home page already found the location, we use it INSTANTLY here.
+  const [coords, setCoords] = useState(() => {
+    try {
+      const saved = sessionStorage.getItem("user_coords");
+      return saved ? JSON.parse(saved) : { lat: null, lng: null };
+    } catch (e) {
+      return { lat: null, lng: null };
+    }
+  });
+
   const [locationDenied, setLocationDenied] = useState(false);
 
-  // 2. Fetch Logic (Decoupled from component)
+  // 2. FETCH FUNCTION (Decoupled)
   const fetchSearchResults = async ({ queryKey }) => {
     const [_, searchQuery, currentCoords] = queryKey;
     
-    // Build URL dynamically based on whether we have coords yet
+    // Build URL: Start with query
     const baseUrl = `${import.meta.env.VITE_BASEURL}/search`;
     const urlParams = new URLSearchParams({ q: searchQuery });
 
+    // Append location only if we have it
     if (currentCoords.lat && currentCoords.lng) {
       urlParams.append("lat", currentCoords.lat);
       urlParams.append("lng", currentCoords.lng);
@@ -29,28 +39,38 @@ const SearchResults = () => {
     return data.data || [];
   };
 
-  // 3. React Query: Fetches IMMEDIATELY with null coords, then re-fetches if coords arrive
-  const { data: results = [], isLoading, isFetching } = useQuery({
-    queryKey: ['search', query, coords], // <--- This dependency array does the magic
+  // 3. REACT QUERY (Automatic Caching)
+  const { 
+    data: results = [], 
+    isLoading, 
+    isFetching 
+  } = useQuery({
+    queryKey: ['search', query, coords], // Key includes coords, so it caches per location
     queryFn: fetchSearchResults,
-    enabled: !!query, // Only run if we have a query
-    staleTime: 1000 * 60 * 5, // Cache results for 5 mins
-    placeholderData: (prev) => prev // Keep showing old results while fetching new location-based ones
+    enabled: !!query, // Only search if there is a query text
+    staleTime: 1000 * 60 * 5, // Cache results for 5 mins (Instant "Back" button load)
+    placeholderData: (prev) => prev // Keep showing old results while refining location
   });
 
-  // 4. Get Location in Background (Fire and Forget)
+  // 4. BACKGROUND LOCATION CHECK
+  // Even if we loaded from storage, we check again to ensure accuracy (without blocking UI)
   useEffect(() => {
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          // Setting this triggers the re-fetch automatically!
-          setCoords({
+          const newCoords = {
             lat: pos.coords.latitude,
             lng: pos.coords.longitude
-          });
+          };
+
+          // Only update if changed (prevents re-fetching if user hasn't moved)
+          if (newCoords.lat !== coords.lat || newCoords.lng !== coords.lng) {
+            setCoords(newCoords);
+            sessionStorage.setItem("user_coords", JSON.stringify(newCoords));
+          }
         },
         () => setLocationDenied(true),
-        { timeout: 5000 } // Don't wait forever
+        { timeout: 5000 }
       );
     } else {
       setLocationDenied(true);
@@ -64,11 +84,11 @@ const SearchResults = () => {
           Results for "<span className="text-amber-600">{query}</span>"
         </h2>
         
-        {/* Status Indicators */}
+        {/* UX Feedback Bar */}
         <div className="flex items-center gap-2 text-sm mt-2 h-6">
            {isFetching && coords.lat && (
-              <span className="text-amber-600 flex items-center gap-1">
-                 <Loader2 size={14} className="animate-spin"/> Refining with location...
+              <span className="text-amber-600 flex items-center gap-1 animate-pulse">
+                 <Loader2 size={14} className="animate-spin"/> Refining results...
               </span>
            )}
            {locationDenied && (
@@ -76,7 +96,7 @@ const SearchResults = () => {
            )}
            {coords.lat && !isFetching && (
              <span className="text-green-600 text-xs flex items-center gap-1">
-               <MapPin size={12}/> Results sorted by distance
+               <MapPin size={12}/> Sorted by distance
              </span>
            )}
         </div>
@@ -124,7 +144,7 @@ const SearchResults = () => {
                   By {product.shopId?.shopName || "Unknown Baker"}
                 </p>
 
-                {/* Distance Logic */}
+                {/* Distance Indicator */}
                 {product.distance !== undefined && (
                    <p className="text-xs text-green-600 mt-2 flex items-center gap-1 font-medium">
                      <MapPin size={12} /> {product.distance.toFixed(1)} km away
