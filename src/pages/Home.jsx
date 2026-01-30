@@ -14,7 +14,7 @@ const Home = () => {
 
   const [coords, setCoords] = useState(getStoredCoords);
   const [locationDenied, setLocationDenied] = useState(false);
-  
+
   // 2. NEW STATE: Are we currently waiting for GPS?
   // If we have stored coords, we are NOT locating. If we don't, we ARE locating.
   const [isLocating, setIsLocating] = useState(!getStoredCoords());
@@ -22,7 +22,7 @@ const Home = () => {
   // 3. GET LOCATION (The "Waiting" Phase)
   useEffect(() => {
     // If we already have coords from storage, stop here.
-    if (coords) return; 
+    if (coords) return;
 
     if (!navigator.geolocation) {
       setLocationDenied(true);
@@ -30,9 +30,9 @@ const Home = () => {
     } else {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          const newCoords = { 
-            lat: pos.coords.latitude, 
-            lng: pos.coords.longitude 
+          const newCoords = {
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude
           };
           setCoords(newCoords);
           sessionStorage.setItem("user_coords", JSON.stringify(newCoords));
@@ -70,20 +70,23 @@ const Home = () => {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-    // Note: We use our own 'isLocating' state for the initial load
-    isLoading: isQueryLoading 
+    isLoading: isQueryLoading
   } = useInfiniteQuery({
-    queryKey: ['shops', coords], 
+    queryKey: ['shops', coords],
     queryFn: fetchShops,
     getNextPageParam: (lastPage) => {
-      const current = lastPage.pagination?.currentPage || 1;
+      // 👇 CHANGE THIS LINE
+      // Backend sends 'page', not 'currentPage'
+      const current = lastPage.pagination?.page || 1;
       const total = lastPage.pagination?.totalPages || 1;
+
+      // If current is less than total, next is current + 1. Otherwise, stop.
       return current < total ? current + 1 : undefined;
     },
     initialPageParam: 1,
-    enabled: !isLocating, // 🛑 PAUSE FETCHING UNTIL LOCATION IS DONE
+    enabled: !isLocating,
     staleTime: 1000 * 60 * 5,
-  });
+  }); 
 
   const allShops = data?.pages.flatMap(page => page.shops) || [];
 
@@ -92,14 +95,14 @@ const Home = () => {
     return (
       <div className="min-h-[80vh] flex flex-col items-center justify-center animate-fade-in px-4 text-center">
         <div className="bg-amber-100 p-6 rounded-full mb-6 relative">
-             <MapPin size={48} className="text-amber-600 animate-bounce" />
-             <div className="absolute -bottom-1 -right-1 bg-white p-2 rounded-full shadow-sm">
-                <Loader2 size={20} className="animate-spin text-stone-400"/>
-             </div>
+          <MapPin size={48} className="text-amber-600 animate-bounce" />
+          <div className="absolute -bottom-1 -right-1 bg-white p-2 rounded-full shadow-sm">
+            <Loader2 size={20} className="animate-spin text-stone-400" />
+          </div>
         </div>
         <h2 className="text-2xl font-extrabold text-stone-800 mb-2">Finding nearby bakers...</h2>
         <p className="text-stone-500 max-w-xs">
-            Hang tight! We are looking for the freshest cakes in your neighborhood.
+          Hang tight! We are looking for the freshest cakes in your neighborhood.
         </p>
       </div>
     );
@@ -112,25 +115,25 @@ const Home = () => {
         <h1 className="text-3xl md:text-5xl font-extrabold text-stone-800 mb-3 tracking-tight">
           Fresh from the <span className="text-amber-600">Oven</span>
         </h1>
-        
+
         <div className="h-6 flex justify-center items-center text-sm">
-            {locationDenied ? (
-              <span className="text-stone-500 flex items-center gap-1">
-                 📍 Location denied - showing all popular shops
-              </span>
-            ) : (
-               <span className="text-green-600 font-medium flex items-center gap-1 animate-fade-in">
-                 <MapPin size={14} /> Showing bakers near you
-               </span>
-            )}
+          {locationDenied ? (
+            <span className="text-stone-500 flex items-center gap-1">
+              📍 Location denied - showing all popular shops
+            </span>
+          ) : (
+            <span className="text-green-600 font-medium flex items-center gap-1 animate-fade-in">
+              <MapPin size={14} /> Showing bakers near you
+            </span>
+          )}
         </div>
       </div>
 
       {isQueryLoading ? (
         <div className="flex flex-col justify-center items-center p-20 text-stone-400">
-             {/* This only shows if location is found but API is still fetching */}
-            <Loader2 className="animate-spin text-amber-600 mb-2" size={40} />
-            <p>Loading the menu...</p>
+          {/* This only shows if location is found but API is still fetching */}
+          <Loader2 className="animate-spin text-amber-600 mb-2" size={40} />
+          <p>Loading the menu...</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 px-4 md:px-6">
@@ -139,14 +142,14 @@ const Home = () => {
           ))}
         </div>
       )}
-      
+
       {!isQueryLoading && allShops.length === 0 && (
-         <div className="text-center py-16 bg-stone-50 rounded-xl border border-stone-100 mx-4">
-            <h3 className="text-lg font-bold text-stone-600 mb-2">No bakers found nearby</h3>
-            <p className="text-stone-500 text-sm max-w-xs mx-auto mb-6">
-                We couldn't find any home bakers in your exact location.
-            </p>
-         </div>
+        <div className="text-center py-16 bg-stone-50 rounded-xl border border-stone-100 mx-4">
+          <h3 className="text-lg font-bold text-stone-600 mb-2">No bakers found nearby</h3>
+          <p className="text-stone-500 text-sm max-w-xs mx-auto mb-6">
+            We couldn't find any home bakers in your exact location.
+          </p>
+        </div>
       )}
 
       {/* Pagination */}
