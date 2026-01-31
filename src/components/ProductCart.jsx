@@ -4,12 +4,10 @@ import { Link } from 'react-router-dom';
 
 const ProductCard = ({ product, onAdd }) => {
     const [singleproduct, setSingleProduct] = useState(null)
-    console.log(singleproduct);
 
     async function getProductId() {
         const Id = await fetch(`${import.meta.env.VITE_BASEURL}/shop/product/${product._id}`)
         const data = await Id.json()
-        console.log(data);
         setSingleProduct(data.product)
     }
     useEffect(() => {

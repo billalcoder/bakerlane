@@ -10,11 +10,9 @@ const ShopDetails = () => {
 
     // --- STATES ---
     const [shop, setShop] = useState(state || null);
-    console.log(shop);
     const [products, setProducts] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState("All");
     const [user, setUser] = useState("")
-    console.log(user);
     // --- MODAL STATES ---
     const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
     const [customForm, setCustomForm] = useState({
@@ -112,7 +110,6 @@ const ShopDetails = () => {
             paymentStatus: "pending",
             customization: customForm
         };
-        console.log(products);
 
         try {
             const response = await fetch(`${import.meta.env.VITE_BASEURL}/order/create`, {

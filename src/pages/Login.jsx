@@ -46,8 +46,7 @@ const Login = () => {
       }
 
       // LOGIN SUCCESSFUL
-      setStatus({ loading: false, error: '', success: true });
-      console.log("Login successful, token:", data.token); // Assuming your backend sends a token
+      setStatus({ loading: false, error: '', success: true }); // Assuming your backend sends a token
       
       // TODO: Store token in localStorage here if needed.
       // localStorage.setItem('token', data.token);

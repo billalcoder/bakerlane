@@ -46,7 +46,6 @@ const ProductDetails = () => {
         const review = async () => {
             const res = await fetch(`${API_BASE}/review/product/${id}`);
             const data = await res.json();
-            console.log("review", data);
             setReviews(data)
         }
 

@@ -3,14 +3,12 @@ import { Star, MapPin, Dessert } from 'lucide-react';
 import { Link } from "react-router-dom";
 
 const ShopCard = ({ shop }) => {
-  console.log(shop)
   return (
     <Link to={`/home/shop/${shop.shop?._id}`} state={shop} className="block h-full">
       <div className="bg-white rounded-xl shadow-sm border border-stone-200 overflow-hidden hover:shadow-lg hover:border-amber-200 transition-all duration-300 group flex flex-col h-full">
 
         {/* Cover Image */}
         <div className="h-48 relative overflow-hidden bg-stone-100">
-          {console.log(shop.shop?.coverImage)}
           <img
             src={shop.shop?.profileImage || "https://placehold.co/600x400"}
             alt={shop.shop?.shopName}
