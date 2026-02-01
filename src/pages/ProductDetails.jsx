@@ -8,7 +8,8 @@ import {
     Star,
     CheckCircle,
     Store,
-    Share2
+    Share2,
+    Info
 } from 'lucide-react';
 
 const ProductDetails = () => {
@@ -63,7 +64,7 @@ const ProductDetails = () => {
                 },
                 credentials: "include",
                 body: JSON.stringify({ productId: id }),
-            }) 
+            })
 
             const data = await res.json()
             if (!data.success) {
@@ -109,13 +110,13 @@ const ProductDetails = () => {
 
             </div>
 
-            <Link 
-            to={`/home/shop/${shopId}`} 
-            className="flex items-center gap-2 px-4 py-2 bg-stone-100 hover:bg-amber-50 text-stone-700 hover:text-amber-700 rounded-full transition-all text-sm font-semibold border border-stone-200"
-        >
-            <Store size={16} />
-            Visit Shop
-        </Link>
+            <Link
+                to={`/home/shop/${shopId}`}
+                className="flex items-center gap-2 px-4 py-2 bg-stone-100 hover:bg-amber-50 text-stone-700 hover:text-amber-700 rounded-full transition-all text-sm font-semibold border border-stone-200"
+            >
+                <Store size={16} />
+                Visit Shop
+            </Link>
 
 
             <div className="max-w-7xl mx-auto px-4 md:px-6 grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-16">
@@ -173,7 +174,14 @@ const ProductDetails = () => {
 
                     {/* Actions Area */}
                     <div className="mt-auto bg-white p-6 rounded-2xl border border-stone-100 shadow-sm space-y-6">
-
+                        <div className="bg-amber-50 border border-amber-100 rounded-lg p-3 flex gap-3 items-start">
+                            <Info className="text-amber-600 shrink-0 mt-0.5" size={16} />
+                            <p className="text-xs text-amber-800 leading-relaxed">
+                                After you press <strong>Order Now</strong>, your request will go to the baker.
+                                If the baker accepts your order, then you will get the baker's contact number
+                                and you can contact them directly.
+                            </p>
+                        </div>
 
                         {/* Buttons */}
                         <div className="grid grid-cols-1 gap-4">
