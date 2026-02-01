@@ -172,28 +172,23 @@ const ShopDetails = () => {
                 <div className="max-w-7xl mx-auto px-4 md:px-6 pt-8 space-y-12">
 
                     {/* --- 1. PORTFOLIO SECTION --- */}
-                    {shop.portfolio && shop.portfolio.length > 0 && (
-                        <section>
-                            <div className="flex items-center gap-2 mb-4">
-                                <Sparkles className="text-amber-500" />
-                                <h2 className="text-2xl font-bold text-stone-800">Chef's Specials</h2>
-                            </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pb-4">
-                                {shop.portfolio.map((item, index) => (
-                                    <div key={index} className="w-full h-full">
-                                        <ProductCard
-                                            product={item}
-                                            image={item.image}
-                                            name={item.name}
-                                            category={item.category}
-                                            price={item.price}
-                                            onAdd={handleAddToCart}
-                                        />
-                                    </div>
-                                ))}
-                            </div>
-                        </section>
-                    )}
+                   {shop.portfolio && shop.portfolio.filter(p => p.name).length > 0 && (
+    <section>
+        {/* ... header ... */}
+        <div className="grid ...">
+            {/* Also add the filter here so you don't map empty cards */}
+            {shop.portfolio
+                .filter(item => item.name) 
+                .map((item, index) => (
+                    <div key={index} className="w-full h-full">
+                        <ProductCard 
+                            /* ... props ... */ 
+                        />
+                    </div>
+            ))}
+        </div>
+    </section>
+)}
 
                     {/* --- 2. CUSTOMIZATION BANNER --- */}
                     <section className="bg-gradient-to-r from-amber-500 to-orange-400 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between text-white shadow-lg">
