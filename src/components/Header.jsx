@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, User, ShoppingBag, ListOrdered, LogOut, Settings } from 'lucide-react';
+import { Search, User, ShoppingBag, ListOrdered, LogOut, Settings, MapPin } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
 const Header = () => {
@@ -117,6 +117,11 @@ const Header = () => {
                       className="flex items-center gap-3 px-4 py-3 text-sm text-stone-700 hover:bg-stone-50"
                     >
                       <User size={16} /> My Profile
+                    </Link>
+
+                    <Link to="/add-address" className="flex items-center gap-3 p-3 hover:bg-stone-100 rounded-lg text-stone-700">
+                      <MapPin size={20} />
+                      <span>Manage Address</span>
                     </Link>
 
                     <Link

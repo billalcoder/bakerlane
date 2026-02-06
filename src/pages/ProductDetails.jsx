@@ -67,6 +67,9 @@ const ProductDetails = () => {
             })
 
             const data = await res.json()
+            if(data.error === "Please add your address"){
+                navigate("/add-address")
+            }
             if (!data.success) {
                 return alert(data.message || data.error)
             }

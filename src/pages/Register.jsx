@@ -2,33 +2,23 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import FormInput from '../components/FormInput';
 import Button from '../components/Button';
-import { CheckCircle } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 
 const Register = () => {
     const navigate = useNavigate();
 
-    // Steps: register -> otp
-    const [step, setStep] = useState('register');
-
+    // Simplified Form Data (Address removed for initial sign up)
     const [formData, setFormData] = useState({
         name: '',
         email: '',
         phone: '',
         password: '',
-        flatNo: '',
-        buildingName: '',
-        area: '',
-        city: '',
-        pincode: '',
-        state: '',
-        terms: false,
-        otp: ''
+        terms: false
     });
 
     const [status, setStatus] = useState({
         loading: false,
         error: '',
-        success: false
     });
 
     const handleChange = (e) => {
@@ -39,51 +29,43 @@ const Register = () => {
         });
     };
 
-    /* ===============================
-       STEP 1: REGISTER USER
-    =============================== */
     const handleRegister = async (e) => {
         e.preventDefault();
-        setStatus({ loading: true, error: '', success: false });
+        setStatus({ loading: true, error: '' });
 
         try {
-            const payload = {
-                name: formData.name,
-                email: formData.email,
-                phone: formData.phone,
-                password: formData.password,
-                terms: formData.terms,
-                address: {
-                    flatNo: formData.flatNo,
-                    buildingName: formData.buildingName,
-                    area: formData.area,
-                    city: formData.city,
-                    pincode: formData.pincode,
-                    state: formData.state
-                }
-            };
-
+            // 1. Create User in DB (isVerified: false)
             const res = await fetch(`${import.meta.env.VITE_BASEURL}/auth/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                body: JSON.stringify({
+                    name: formData.name,
+                    email: formData.email,
+                    phone: formData.phone,
+                    password: formData.password,
+                    terms: formData.terms
+                })
             });
 
             const data = await res.json();
             if (!res.ok) throw new Error(data.message || data.error || "Registration failed");
 
+            // 2. Send OTP immediately after successful registration
             await sendOtpToUser();
-            setStep('otp');
-            setStatus({ loading: false, error: '', success: false });
+
+            // 3. Save Email/Phone to LocalStorage so VerifyOtp page can read it
+            // This allows the user to refresh the verify page without losing context
+            localStorage.setItem('pending_email', formData.email);
+            localStorage.setItem('pending_phone', formData.phone);
+            
+            // 4. Navigate to the dedicated OTP route
+            navigate('/verify-otp');
 
         } catch (err) {
-            setStatus({ loading: false, error: err.message, success: false });
+            setStatus({ loading: false, error: err.message });
         }
     };
 
-    /* ===============================
-       SEND OTP
-    =============================== */
     const sendOtpToUser = async () => {
         const res = await fetch(`${import.meta.env.VITE_BASEURL}/auth/otp`, {
             method: 'POST',
@@ -98,131 +80,87 @@ const Register = () => {
         if (!res.ok) throw new Error(data.message || "Failed to send OTP");
     };
 
-    /* ===============================
-       VERIFY OTP
-    =============================== */
-    const handleVerify = async (e) => {
-        e.preventDefault();
-        setStatus({ loading: true, error: '', success: false });
-
-        try {
-            const res = await fetch(`${import.meta.env.VITE_BASEURL}/auth/varify`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    email: formData.email,
-                    otp: formData.otp
-                })
-            });
-
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.message || "Invalid OTP");
-
-            setStatus({ loading: false, error: '', success: true });
-
-            setTimeout(() => navigate('/login'), 2000);
-
-        } catch (err) {
-            setStatus({ loading: false, error: err.message, success: false });
-        }
-    };
-
     return (
-        <div className="min-h-screen flex items-center justify-center bg-stone-100 p-4">
-            <div className="w-full max-w-lg bg-white rounded-2xl shadow-xl border border-stone-200">
+        <div className="min-h-screen flex items-center justify-center bg-stone-100 p-4 font-sans">
+            <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-stone-200 overflow-hidden">
 
                 <div className="bg-amber-600 p-8 text-center">
-                    <h2 className="text-3xl font-bold text-white">
-                        {step === 'register' ? 'Join Us' : 'Verify Account'}
-                    </h2>
-                    <p className="text-amber-100 mt-2">
-                        {step === 'register'
-                            ? 'Create your new account'
-                            : `OTP sent to ${formData.email}`}
-                    </p>
+                    <h2 className="text-3xl font-bold text-white tracking-wide">Join Us</h2>
+                    <p className="text-amber-100 mt-2">Create your new account</p>
                 </div>
 
                 <div className="p-8">
+                    {/* Error Message Display */}
                     {status.error && (
-                        <div className="mb-4 p-3 bg-red-50 text-red-700 rounded">
-                            {status.error}
+                        <div className="mb-4 p-3 bg-red-50 text-red-700 text-sm rounded flex items-center gap-2 border border-red-200 animate-fade-in">
+                            <AlertCircle size={16} /> {status.error}
                         </div>
                     )}
 
-                    {status.success && (
-                        <div className="mb-4 p-3 bg-green-50 text-green-700 rounded flex gap-2">
-                            <CheckCircle size={16} /> Verified! Redirecting...
-                        </div>
-                    )}
+                    <form onSubmit={handleRegister} className="space-y-4 animate-fade-in">
+                        <FormInput 
+                            label="Full Name" 
+                            name="name" 
+                            value={formData.name} 
+                            onChange={handleChange} 
+                            required 
+                            placeholder="John Doe" 
+                        />
+                        <FormInput 
+                            label="Email Address" 
+                            type="email" 
+                            name="email" 
+                            value={formData.email} 
+                            onChange={handleChange} 
+                            required 
+                            placeholder="john@example.com" 
+                        />
+                        <FormInput 
+                            label="Phone Number" 
+                            type="tel" 
+                            name="phone" 
+                            value={formData.phone} 
+                            onChange={handleChange} 
+                            required 
+                            placeholder="9876543210" 
+                        />
+                        <FormInput 
+                            label="Password" 
+                            type="password" 
+                            name="password" 
+                            value={formData.password} 
+                            onChange={handleChange} 
+                            required 
+                            placeholder="••••••••" 
+                        />
 
-                    {/* REGISTER FORM */}
-                    {step === 'register' && (
-                        <form className="space-y-4">
-                            <h3 className="font-semibold">Personal Details</h3>
-
-                            <FormInput label="Full Name" name="name" value={formData.name} onChange={handleChange} required />
-                            <FormInput label="Email" type="email" name="email" value={formData.email} onChange={handleChange} required />
-                            <FormInput label="Phone" name="phone" value={formData.phone} onChange={handleChange} required />
-                            <FormInput label="Password" type="password" name="password" value={formData.password} onChange={handleChange} required />
-
-                            <h3 className="font-semibold pt-4">Address Details</h3>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <FormInput label="Flat No" name="flatNo" value={formData.flatNo} onChange={handleChange} required />
-                                <FormInput label="Building Name" name="buildingName" value={formData.buildingName} onChange={handleChange} required />
-                            </div>
-
-                            <FormInput label="Area" name="area" value={formData.area} onChange={handleChange} required />
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <FormInput label="City" name="city" value={formData.city} onChange={handleChange} required />
-                                <FormInput label="Pincode" name="pincode" value={formData.pincode} onChange={handleChange} required />
-                            </div>
-
-                            <FormInput label="State" name="state" value={formData.state} onChange={handleChange} required />
-
-                            <div className="flex items-center">
-                                <input type="checkbox" name="terms" checked={formData.terms} onChange={handleChange} required />
-                                <span className="ml-2 text-sm">I agree to Terms</span>
-                            </div>
-
-                            <Button text="Continue" onClick={handleRegister} disabled={status.loading} />
-                        </form>
-                    )}
-
-                    {/* OTP FORM */}
-                    {step === 'otp' && (
-                        <form className="space-y-4">
-                            <FormInput
-                                label="Enter OTP"
-                                name="otp"
-                                value={formData.otp}
-                                onChange={handleChange}
-                                required
+                        <div className="flex items-center pt-2">
+                            <input 
+                                type="checkbox" 
+                                name="terms" 
+                                checked={formData.terms} 
+                                onChange={handleChange} 
+                                required 
+                                className="h-4 w-4 text-amber-600 focus:ring-amber-500 rounded border-gray-300" 
                             />
+                            <span className="ml-2 text-sm text-stone-600">
+                                I agree to Terms & Conditions
+                            </span>
+                        </div>
 
-                            <Button text="Verify & Login" onClick={handleVerify} disabled={status.loading} />
+                        <Button 
+                            text={status.loading ? "Creating Account..." : "Continue"} 
+                            type="submit" 
+                            disabled={status.loading} 
+                        />
+                    </form>
 
-                            <div className="text-center">
-                                <button
-                                    type="button"
-                                    onClick={() => sendOtpToUser()}
-                                    className="text-sm text-amber-600 underline"
-                                >
-                                    Resend OTP
-                                </button>
-                            </div>
-                        </form>
-                    )}
-
-                    {step === 'register' && (
-                        <p className="mt-6 text-center text-sm">
-                            Already have an account?{' '}
-                            <Link to="/login" className="text-amber-600 font-semibold">
-                                Log In
-                            </Link>
-                        </p>
-                    )}
+                    <div className="mt-6 text-center text-sm text-stone-500">
+                        Already have an account?{' '}
+                        <Link to="/login" className="text-amber-600 font-bold hover:underline">
+                            Log In
+                        </Link>
+                    </div>
                 </div>
             </div>
         </div>

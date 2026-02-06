@@ -4,6 +4,7 @@ import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
 import './index.css'
 // import { ShopProvider } from '../context/ShopContext.jsx'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import VerifyOtp from './pages/VerifyOtp.jsx'
 
 // 🔹 Lazy-loaded components
 const App = lazy(() => import('./App.jsx'))
@@ -17,7 +18,7 @@ const Order = lazy(() => import('./pages/Order.jsx'))
 const SearchResults = lazy(() => import('./pages/SearchResults.jsx'))
 const Settings = lazy(() => import('./pages/setting.jsx'))
 const Profile = lazy(() => import('./pages/Profile.jsx'))
-
+const AddAddress = lazy(() => import('./pages/AddAddress.jsx'))
 
 const queryClient = new QueryClient()
 
@@ -45,6 +46,22 @@ const router = createBrowserRouter([
         element: (
           <Suspense fallback={<Loader />}>
             <Register />
+          </Suspense>
+        )
+      },
+      {
+        path: "verify-otp",
+        element: (
+          <Suspense fallback={<Loader />}>
+            <VerifyOtp />
+          </Suspense>
+        )
+      },
+      {
+        path: "add-address",
+        element: (
+          <Suspense fallback={<Loader />}>
+            <AddAddress />
           </Suspense>
         )
       },
