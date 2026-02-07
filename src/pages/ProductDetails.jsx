@@ -73,7 +73,7 @@ const ProductDetails = () => {
             if (!data.success) {
                 return alert(data.message || data.error)
             }
-            alert("Your order will be send to the baker you will be notify ones accepted and you can view your orders in order tab avalable in header and the profile option")
+            alert("Your order will be shared with the baker. You will be notified as soon as the baker accepts it. You can track and view your orders anytime from the Orders tab in the header or through your Profile.")
         }
     };
 
@@ -163,7 +163,7 @@ const ProductDetails = () => {
 
                         <div className="flex items-end gap-3">
                             <span className="text-4xl font-extrabold text-amber-600">₹{product.price}</span>
-                            <span className="text-stone-400 text-sm mb-1.5 font-medium">{product.unitType === "kg" ? `${product.unitValue} G` : `per ${product.unitValue} Unit`}</span>
+                            <span className="text-stone-400 text-sm mb-1.5 font-medium">{product.unitType === "kg" ? `${product.unitValue}` : `for ${product.unitValue} items`}</span>
                         </div>
                     </div>
 
