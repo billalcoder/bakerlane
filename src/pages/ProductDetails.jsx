@@ -55,7 +55,7 @@ const ProductDetails = () => {
     }, [id, API_BASE]);
 
     const handleBuyNow = async () => {
-        const isYes = confirm(`Do you really what to make order to ${product.productName}`)
+        const isYes = confirm(`Are you sure you want to place an order for ${product.productName}?`)
         if (isYes) {
             const res = await fetch(`${import.meta.env.VITE_BASEURL}/order/create`, {
                 method: "POST",
