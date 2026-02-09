@@ -10,7 +10,7 @@ const ShopCard = ({ shop }) => {
         {/* Cover Image */}
         <div className="h-48 relative overflow-hidden bg-stone-100">
           <img
-            src={shop.shop?.profileImage || "https://placehold.co/600x400"}
+            src={shop.shop?.profileImage || shop.shop?.coverImage || "https://placehold.co/600x400"}
             alt={shop.shop?.shopName}
             loading="lazy"
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
