@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /home
+
+# Block authentication and onboarding
+Disallow: /login
+Disallow: /register
+Disallow: /verify-otp
+Disallow: /add-address
+
+# Block private customer routes (nested under /home)
+Disallow: /home/order
+Disallow: /home/settings
+Disallow: /home/profile
+Disallow: /home/search
+
+# Block backend API calls
+Disallow: /api/
+
+Sitemap: https://app.bakerlane.shop/sitemap.xml
