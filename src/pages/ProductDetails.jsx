@@ -37,11 +37,11 @@ const ProductDetails = () => {
     const { data: product, isLoading, isError } = useQuery({
         queryKey: ['product', String(id)], // Unique Box for this product
         queryFn: () => fetchProductDetails(id),
-        
+
         // 🚀 MAGIC FIX: Use data from Shop Page immediately!
         // If 'state' exists, we use it. If not (e.g. refresh), we fetch.
-        initialData: state?.product || state, 
-        
+        initialData: state?.product || state,
+
         staleTime: 5 * 60 * 1000, // 5 Minutes
         gcTime: 10 * 60 * 60 * 24, // 24 Hours
     });
@@ -77,7 +77,7 @@ const ProductDetails = () => {
 
     const handleBuyNow = () => {
         const hasCoords = localStorage.getItem("coords"); // Ensure you use the same key everywhere
-        
+
         if (!hasCoords) {
             if (confirm("Allow location access to find nearby bakers?")) {
                 navigator.geolocation.getCurrentPosition(
@@ -131,7 +131,7 @@ const ProductDetails = () => {
             </Link>
 
             <div className="max-w-7xl mx-auto px-4 md:px-6 grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-16 mt-6">
-                
+
                 {/* --- IMAGE --- */}
                 <div className="space-y-4">
                     <div className="aspect-square bg-white rounded-3xl overflow-hidden shadow-sm border border-stone-100 relative group">
@@ -158,9 +158,24 @@ const ProductDetails = () => {
 
                         <h1 className="text-3xl md:text-4xl font-extrabold text-stone-800 mb-4 leading-tight">{product.productName}</h1>
 
-                        <div className="flex items-end gap-3">
-                            <span className="text-4xl font-extrabold text-amber-600">₹{product.price}</span>
-                            <span className="text-stone-400 text-sm mb-1.5 font-medium">{product.unitType === "kg" ? `${product.unitValue}` : `for ${product.unitValue} items`}</span>
+                        <div className="flex flex-col gap-1">
+                            <div className="flex items-end gap-2">
+                                {/* Conditional "Starting from" label */}
+                                <span className="text-stone-500 text-sm font-semibold mb-1">Starting from</span>
+
+                                <span className="text-4xl font-extrabold text-amber-600">
+                                    ₹{product.price}
+                                </span>
+
+                                <span className="text-stone-400 text-sm mb-1.5 font-medium">
+                                    {product.unitType === "kg" ? `${product.unitValue}` : `for ${product.unitValue} items`}
+                                </span>
+                            </div>
+
+                            {/* Explanation text for the user */}
+                            <p className="text-[15px] text-stone-400 italic">
+                                *Final price may vary based on your choice of custom flavors, themes, or additional weight.
+                            </p>
                         </div>
                     </div>
 

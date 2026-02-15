@@ -39,7 +39,7 @@ const AddAddress = () => {
             if (!res.ok) throw new Error(data.error || "Failed to save address");
 
             alert("Address Saved Successfully!");
-            navigate('/home'); // Go back to profile or home
+            navigate(-1); // Go back to profile or home
 
         } catch (error) {
             alert(error.message);

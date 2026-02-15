@@ -61,15 +61,52 @@ const ShopDetails = () => {
 
     // --- HANDLERS ---
     const handleCustomSubmit = async () => {
+        // 1. Validation
         if (!customForm.weight || !customForm.flavor || !customForm.theme) {
-            alert("Please fill in all required fields.");
+            alert("Please fill in the weight, flavor, and theme.");
             return;
         }
+
         setIsSubmitting(true);
-        // ... (Add your custom order logic here) ...
-        alert("Custom order feature coming soon!"); // Placeholder
-        setIsSubmitting(false);
-        setIsCustomModalOpen(false);
+
+        try {
+            const response = await fetch(`${import.meta.env.VITE_BASEURL}/order/create`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    shopId: shop._id, // Ensure this ID is available in your component scope
+                    customization: {
+                        weight: customForm.weight,
+                        flavor: customForm.flavor,
+                        theme: customForm.theme,
+                        notes: customForm.notes || ""
+                    }
+                }),
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                // Handle specific backend errors (like the 422 address error)
+                throw new Error(result.error || result.message || "Failed to send request");
+            }
+
+            // 2. Success Actions
+            alert("Custom request sent successfully! The baker will review it soon.");
+
+            // Reset form and close modal
+            setCustomForm({ weight: '', flavor: '', theme: '', notes: '' });
+            setIsCustomModalOpen(false);
+
+        } catch (error) {
+            console.error("Fetch Error:", error);
+            alert(error.message);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     // --- LOADING STATES ---
@@ -192,6 +229,41 @@ const ShopDetails = () => {
                             <div>
                                 <label className="block text-sm font-bold text-stone-700 mb-2">Cake Weight</label>
                                 <input type="text" className="w-full border border-stone-200 rounded-lg p-3" value={customForm.weight} onChange={(e) => setCustomForm({ ...customForm, weight: e.target.value })} placeholder="e.g. 1kg" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-stone-700 mb-2">Select Flavor</label>
+                                <select
+                                    className="w-full border border-stone-200 rounded-lg p-3 bg-white"
+                                    value={customForm.flavor}
+                                    onChange={(e) => setCustomForm({ ...customForm, flavor: e.target.value })}
+                                >
+                                    <option value="">Select a flavor</option>
+                                    {flavors.map((f) => (
+                                        <option key={f} value={f}>{f}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-stone-700 mb-2">Cake Theme</label>
+                                <select
+                                    className="w-full border border-stone-200 rounded-lg p-3 bg-white"
+                                    value={customForm.theme}
+                                    onChange={(e) => setCustomForm({ ...customForm, theme: e.target.value })}
+                                >
+                                    <option value="">Select a theme</option>
+                                    {themes.map((t) => (
+                                        <option key={t} value={t}>{t}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-stone-700 mb-2">Special Notes & Messages</label>
+                                <textarea
+                                    className="w-full border border-stone-200 rounded-lg p-3 min-h-[100px]"
+                                    value={customForm.notes}
+                                    onChange={(e) => setCustomForm({ ...customForm, notes: e.target.value })}
+                                    placeholder="e.g. Write 'Happy Birthday Sarah' or specific color preferences..."
+                                />
                             </div>
                             {/* ... Add other inputs (Flavor, Theme, etc.) here same as before ... */}
                             <button onClick={handleCustomSubmit} disabled={isSubmitting} className="w-full bg-amber-600 text-white py-3.5 rounded-xl font-bold">{isSubmitting ? "Sending..." : "Confirm Request"}</button>
